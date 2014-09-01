@@ -1,0 +1,8 @@
+syntax:glob
+
+Library/*
+Temp/*
+*plugin.log
+.DS_Store
+*.unc-backup*
+*.bak
