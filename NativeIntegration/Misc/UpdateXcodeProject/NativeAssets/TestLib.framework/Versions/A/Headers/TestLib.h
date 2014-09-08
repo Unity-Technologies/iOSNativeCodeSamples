@@ -10,4 +10,7 @@
 
 @interface TestLib : NSObject
 
++ (NSString*)getRightTitle;
++ (NSString*)getLeftTitle;
+
 @end

@@ -544,6 +544,7 @@
 				AA8480CD19B9CF7300D60A34 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		AA8480CE19B9CF7300D60A34 /* Build configuration list for PBXNativeTarget "TestLibTests" */ = {
 			isa = XCConfigurationList;
@@ -552,6 +553,7 @@
 				AA8480D019B9CF7300D60A34 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		AA8480E019BDA56100D60A34 /* Build configuration list for PBXNativeTarget "TestLibResources" */ = {
 			isa = XCConfigurationList;
@@ -560,6 +562,7 @@
 				AA8480E219BDA56100D60A34 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
