@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA8480D519BDA56100D60A34"
-               BuildableName = "TestLibResources.bundle"
+               BuildableName = "TestLib.bundle"
                BlueprintName = "TestLibResources"
                ReferencedContainer = "container:TestLib.xcodeproj">
             </BuildableReference>

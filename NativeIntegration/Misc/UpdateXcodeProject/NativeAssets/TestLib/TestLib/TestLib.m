@@ -10,4 +10,13 @@
 
 @implementation TestLib
 
++ (NSString*)getRightTitle
+{
+	return @"Go to right";
+}
++ (NSString*)getLeftTitle
+{
+	return @"Return left";
+}
+
 @end
