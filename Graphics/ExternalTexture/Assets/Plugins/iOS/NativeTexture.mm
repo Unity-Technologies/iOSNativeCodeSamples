@@ -28,8 +28,7 @@ static void* LoadDataFromImage(UIImage* image)
     ::memset(textureData, 0x00, imageW*imageH * 4);
 
     CGContextRef textureContext = CGBitmapContextCreate( textureData, imageW, imageH, 8, imageW * 4,
-    CGImageGetColorSpace(imageData), kCGImageAlphaPremultipliedLast
-    );
+    CGImageGetColorSpace(imageData), kCGImageAlphaPremultipliedLast);
     CGContextSetBlendMode(textureContext, kCGBlendModeCopy);
     CGContextDrawImage(textureContext, CGRectMake(0,0, imageW, imageH), imageData);
     CGContextRelease(textureContext);

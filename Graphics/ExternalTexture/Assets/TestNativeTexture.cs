@@ -4,8 +4,9 @@ using System.Runtime.InteropServices;
 
 public class TestNativeTexture : MonoBehaviour
 {
-    public Material testMaterial = null;
-    private Texture2D testTex = null;
+    private Texture2D   testTex = null;
+    public  Renderer    target  = null;
+
 
 #if UNITY_IPHONE && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -23,12 +24,12 @@ public class TestNativeTexture : MonoBehaviour
     }
 #endif // if UNITY_IPHONE && !UNITY_EDITOR
 
-    private string[] externalTexture = new string[] { "Test_UnityLogoLarge", "Test_Icon", "Soft" };
+    private string[]    externalTexture = new string[] { "Test_UnityLogoLarge", "Test_Icon", "Soft" };
+    private int         curTexIndex;
 
-    private int curTexIndex;
-    System.IntPtr curTex;
+    private System.IntPtr   curTex;
 
-    private void LoadTexture()
+    void LoadTexture()
     {
         System.IntPtr texToDestroy = curTex;
 
@@ -39,19 +40,22 @@ public class TestNativeTexture : MonoBehaviour
         DestroyNativeTexture(texToDestroy);
     }
 
-
     void Start()
     {
+        Material mat = new Material(Shader.Find("Unlit/Transparent"));
+        mat.mainTextureScale = new Vector2(2.0f, 2.0f);
+        target.material = mat;
+
         curTexIndex = 0;
         curTex      = CreateNativeTexture(externalTexture[0]);
 
         testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, curTex);
-        testMaterial.mainTexture = testTex;
+        target.material.mainTexture = testTex;
     }
 
     void OnGUI()
     {
-        if (GUI.Button(new Rect(10, 10, 200, 200), "Show Next"))
+        if(GUI.Button(new Rect(10, 10, 200, 200), "Show Next"))
             LoadTexture();
     }
 }
