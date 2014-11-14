@@ -2,6 +2,7 @@
 
 static NSMutableArray *collector = nil;
 static bool done = false;
+static ALAssetsLibrary* al = nil;
 
 extern "C" void RequestImages()
 {
@@ -12,7 +13,8 @@ extern "C" void RequestImages()
     
     NSLog(@"ListGalleryImages\n");
     
-    ALAssetsLibrary *al = [[ALAssetsLibrary alloc] init];
+    if (!al)
+      al = [[ALAssetsLibrary alloc] init];
 
     [al enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos
     usingBlock:^(ALAssetsGroup *group, BOOL *stop)
@@ -62,7 +64,7 @@ extern "C" void* GetGalleryImage(int idx, int* sz)
         return NULL;
     }
     
-    return (void*)rawData;
+    return (__bridge_retained void*)rawData;
 }
 
 extern "C" void* GetImageBuffer(NSMutableData* rawData)
@@ -72,5 +74,5 @@ extern "C" void* GetImageBuffer(NSMutableData* rawData)
 
 extern "C" void ReleaseImage(NSMutableData* rawData)
 {
-    [rawData release];
+    CFRelease((CFTypeRef)rawData);
 }
