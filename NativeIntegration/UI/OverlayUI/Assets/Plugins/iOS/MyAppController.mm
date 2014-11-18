@@ -16,19 +16,6 @@ extern "C" typedef void (*DateSelectedCallback)(const char *);
 
 @implementation MyAppController
 
-- (id)init
-{
-    if( (self = [super init]) )
-    {
-        [[NSNotificationCenter defaultCenter]   addObserver:self
-                                            selector:@selector(orientationDidChange:)
-                                            name:kUnityViewDidRotate
-                                            object:nil
-        ];
-    }
-    return self;
-}
-
 - (void)showDatePicker:(DateSelectedCallback)callback
 {
     _dateSelected = callback;
@@ -58,7 +45,7 @@ extern "C" typedef void (*DateSelectedCallback)(const char *);
     _datePicker.hidden = YES;
 }
 
-- (void)orientationDidChange:(NSNotification*)notification
+- (void)interfaceDidChangeOrientationFrom:(UIInterfaceOrientation)fromInterfaceOrientation
 {
     _datePicker.frame = self.rootView.bounds;
 }
