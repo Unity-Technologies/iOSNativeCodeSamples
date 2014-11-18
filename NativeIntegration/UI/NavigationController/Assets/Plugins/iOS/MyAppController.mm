@@ -13,13 +13,11 @@
     UIViewController*           _embedController1;
     UIViewController*           _embedController2;
 }
-- (void)createViewHierarchyImpl;
 @end
 
 @implementation MyAppController
-- (void)createViewHierarchyImpl;
+- (void)willStartWithViewController:(UIViewController*)controller
 {
-    _rootController = [[UnityViewControllerBase alloc] init];
     _rootView       = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     _embedController1 = [[UIViewController alloc] init];
