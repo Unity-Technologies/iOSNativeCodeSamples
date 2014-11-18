@@ -76,7 +76,7 @@ static ScreenshotCreator* _Creator = nil;
 {
     if(!self->creatingScreenshot)
     {
-        self->screenshotPath = [path retain];
+        self->screenshotPath = path;
         self->callback = callback_;
         self->requestedScreenshot = YES;
     }
@@ -123,22 +123,18 @@ static ScreenshotCreator* _Creator = nil;
     CGDataProviderRelease(cgProvider);
     CGColorSpaceRelease(cgColorSpace);
 
-    UIImage* image = [[UIImage imageWithCGImage:cgImage] retain];
+    UIImage* image = [UIImage imageWithCGImage:cgImage];
     CGImageRelease(cgImage);
 
-    NSURL* documents = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject retain];
-    NSURL* fileUrl   = [[documents URLByAppendingPathComponent:screenshotPath] retain];
+    NSURL* documents = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject;
+    NSURL* fileUrl   = [documents URLByAppendingPathComponent:screenshotPath];
 
     NSData* pngData = UIImagePNGRepresentation(image);
     [pngData writeToURL:fileUrl atomically:YES];
-    [image release];
-
-    [documents release];
-    [fileUrl release];
 
     ::free(finalImageData);
 
-    [screenshotPath release];
+    screenshotPath = nil;
     [self performSelectorOnMainThread: @selector(doneSavingImage) withObject:NULL waitUntilDone:NO];
 }
 
