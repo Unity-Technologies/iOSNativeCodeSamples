@@ -88,7 +88,7 @@ extern "C" void VideoPlayer_VideoExtents(int* w, int* h)
     *h = (int)sz.height;
 }
 
-extern "C" int VideoPlayer_CurFrameTexture()
+extern "C" intptr_t VideoPlayer_CurFrameTexture()
 {
     return [_GetPlayer()->player curFrameTexture];
 }

@@ -15,7 +15,7 @@ VideoPlayerInterface
     [DllImport("__Internal")]
     private static extern void VideoPlayer_VideoExtents(ref int w, ref int h);
     [DllImport("__Internal")]
-    private static extern int VideoPlayer_CurFrameTexture();
+    private static extern System.IntPtr VideoPlayer_CurFrameTexture();
     [DllImport("__Internal")]
     private static extern bool VideoPlayer_PlayVideo(string filename);
 #else // if UNITY_IPHONE && !UNITY_EDITOR
@@ -23,7 +23,7 @@ VideoPlayerInterface
     private static bool VideoPlayer_PlayerReady()                       { return false; }
     private static float VideoPlayer_DurationSeconds()                  { return 0.0f; }
     private static void VideoPlayer_VideoExtents(ref int w, ref int h)  { }
-    private static int VideoPlayer_CurFrameTexture()                    { return 0; }
+    private static System.IntPtr VideoPlayer_CurFrameTexture()          { return System.IntPtr.Zero; }
     private static bool VideoPlayer_PlayVideo(string filename)          { return false; }
 #endif // if UNITY_IPHONE && !UNITY_EDITOR
 
@@ -68,17 +68,17 @@ VideoPlayerInterface
     {
         get
         {
-            int nativeTex = videoReady ? VideoPlayer_CurFrameTexture() : 0;
-            if (nativeTex != 0)
+            System.IntPtr nativeTex = videoReady ? VideoPlayer_CurFrameTexture() : System.IntPtr.Zero;
+            if (nativeTex != System.IntPtr.Zero)
             {
                 if (_videoTexture == null)
                 {
-                    _videoTexture = Texture2D.CreateExternalTexture(videoWidth, videoHeight, TextureFormat.BGRA32, false, false, (System.IntPtr)nativeTex);
+                    _videoTexture = Texture2D.CreateExternalTexture(videoWidth, videoHeight, TextureFormat.BGRA32, false, false, nativeTex);
                     _videoTexture.filterMode = FilterMode.Bilinear;
                     _videoTexture.wrapMode = TextureWrapMode.Repeat;
                 }
 
-                _videoTexture.UpdateExternalTexture((System.IntPtr)nativeTex);
+                _videoTexture.UpdateExternalTexture(nativeTex);
             }
             else
             {
