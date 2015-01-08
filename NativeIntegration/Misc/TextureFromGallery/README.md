@@ -19,4 +19,3 @@ iOS: any
 
 ## Notes
 
-Currently it requires to manually add AssetsLibrary framework reference to the generated Xcode project.

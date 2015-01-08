@@ -47,7 +47,7 @@ public class GalleryTextureLoader : MonoBehaviour
 
             var tex = new Texture2D(4, 4);
             tex.LoadImage(image);
-            cube.renderer.material.mainTexture = tex;
+            cube.GetComponent<Renderer>().material.mainTexture = tex;
 
             ReleaseImage(handle);
         }
