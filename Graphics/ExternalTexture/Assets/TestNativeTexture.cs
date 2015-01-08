@@ -37,7 +37,8 @@ public class TestNativeTexture : MonoBehaviour
         curTex      = CreateNativeTexture(externalTexture[curTexIndex]);
 
         testTex.UpdateExternalTexture(curTex);
-        DestroyNativeTexture(texToDestroy);
+        if(texToDestroy != System.IntPtr.Zero)
+            DestroyNativeTexture(texToDestroy);
     }
 
     void Start()
@@ -46,11 +47,12 @@ public class TestNativeTexture : MonoBehaviour
         mat.mainTextureScale = new Vector2(2.0f, 2.0f);
         target.material = mat;
 
-        curTexIndex = 0;
-        curTex      = CreateNativeTexture(externalTexture[0]);
-
-        testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, curTex);
+        testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, System.IntPtr.Zero);
         target.material.mainTexture = testTex;
+
+        curTexIndex = -1;
+        curTex = System.IntPtr.Zero;
+        LoadTexture();
     }
 
     void OnGUI()
