@@ -23,11 +23,17 @@ public class TestMetalPlugin : MonoBehaviour
 	private static void SetRenderBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer)	{}
 #endif
 
+	void Start()
+	{
+		RenderTexture rt = GetComponent<Camera>().targetTexture;
+		// make sure rt is created, as OnPostRender will be called before setting it as active RT, and lazy creation would not kick in yet
+		if(rt)
+			rt.Create();
+	}
+
 	void OnPreRender()
 	{
 		RenderTexture rt = GetComponent<Camera>().targetTexture;
-		if(rt)
-			rt.Create();
 
 		RenderBuffer colorBuffer = rt ? rt.colorBuffer : Display.main.colorBuffer;
 		RenderBuffer depthBuffer = rt ? rt.depthBuffer : Display.main.depthBuffer;

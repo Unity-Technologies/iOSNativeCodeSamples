@@ -2,6 +2,10 @@
 #import "UnityAppController.h"
 #import <Metal/Metal.h>
 
+#if UNITY_VERSION < 500
+	typedef void* UnityRenderBuffer;
+#endif
+
 
 static void SetGraphicsDeviceFunc(void* device, int deviceType, int eventType);
 static void PluginRenderMarkerFunc(int marker);
