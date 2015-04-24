@@ -21,11 +21,20 @@ static void PluginRenderMarkerFunc(int marker);
 IMPL_APP_CONTROLLER_SUBCLASS(MyAppController);
 
 
-static id<MTLTexture> g_TargetTexture = nil;
-extern "C" void SetTargetRT(void* texturePtr)
+static id<MTLTexture> g_CaptureTexture = nil;
+extern "C" void SetCaptureBuffers(void* colorBuffer, void* depthBuffer)
 {
-	// please make sure you dont use backbuffer texture, as this one is changed every frame
-	g_TargetTexture = (__bridge id<MTLTexture>)texturePtr;
+	g_CaptureTexture = UnityRenderBufferMTLTexture((UnityRenderBuffer)colorBuffer);
+}
+
+static id<MTLTexture> g_RenderColorTexture		= nil;
+static id<MTLTexture> g_RenderDepthTexture		= nil;
+static id<MTLTexture> g_RenderStencilTexture	= nil;
+extern "C" void SetRenderBuffers(void* colorBuffer, void* depthBuffer)
+{
+	g_RenderColorTexture 	= UnityRenderBufferMTLTexture((UnityRenderBuffer)colorBuffer);
+	g_RenderDepthTexture 	= UnityRenderBufferMTLTexture((UnityRenderBuffer)depthBuffer);
+	g_RenderStencilTexture	= UnityRenderBufferStencilMTLTexture((UnityRenderBuffer)depthBuffer);
 }
 
 static id<MTLTexture> g_TextureCopy	= nil;
@@ -34,17 +43,16 @@ static id<MTLTexture> CreateTextureCopyIfNeeded()
 	bool create = false;
 	if(g_TextureCopy == nil)
 		create = true;
-	else if(g_TextureCopy.width != g_TargetTexture.width || g_TextureCopy.height != g_TargetTexture.height)
+	else if(g_TextureCopy.width != g_CaptureTexture.width || g_TextureCopy.height != g_CaptureTexture.height)
 		create = true;
 
 	if(create)
 	{
-		Class MTLTextureDescriptorClass = [UnityGetMetalBundle() classNamed:@"MTLTextureDescriptor"];
 		MTLTextureDescriptor* txDesc =
 			[[UnityGetMetalBundle() classNamed:@"MTLTextureDescriptor"]
-				texture2DDescriptorWithPixelFormat:g_TargetTexture.pixelFormat
-				width:g_TargetTexture.width
-				height:g_TargetTexture.height
+				texture2DDescriptorWithPixelFormat:g_CaptureTexture.pixelFormat
+				width:g_CaptureTexture.width
+				height:g_CaptureTexture.height
 				mipmapped:NO
 			];
 		g_TextureCopy = [UnityGetMetalDevice() newTextureWithDescriptor:txDesc];
@@ -123,15 +131,15 @@ static void InitMetalPipeline()
 		g_VertexDesc.layouts[0] = streamDesc;
 
 
-		// TODO: we assume final render happens to back buffer: fixed format
+		// TODO: for now we expect "render" RT to not change
 		MTLRenderPipelineDescriptor* pipeDesc = [[[UnityGetMetalBundle() classNamed:@"MTLRenderPipelineDescriptor"] alloc] init];
 
-		pipeDesc.depthAttachmentPixelFormat	= MTLPixelFormatDepth32Float;
-		pipeDesc.stencilAttachmentPixelFormat = MTLPixelFormatStencil8;
+		pipeDesc.depthAttachmentPixelFormat	= g_RenderDepthTexture.pixelFormat;
+		pipeDesc.stencilAttachmentPixelFormat = g_RenderStencilTexture.pixelFormat;
 		pipeDesc.sampleCount = 1;
 
 		MTLRenderPipelineColorAttachmentDescriptor* colorDesc = [[[UnityGetMetalBundle() classNamed:@"MTLRenderPipelineColorAttachmentDescriptor"] alloc] init];
-		colorDesc.pixelFormat = MTLPixelFormatBGRA8Unorm;
+		colorDesc.pixelFormat = g_RenderColorTexture.pixelFormat;
 		colorDesc.blendingEnabled = NO;
 		pipeDesc.colorAttachments[0] = colorDesc;
 
@@ -156,7 +164,7 @@ static void PluginRenderMarkerFunc(int marker)
 
 		UnityEndCurrentMTLCommandEncoder();
 
-		id<MTLTexture> src = g_TargetTexture;
+		id<MTLTexture> src = g_CaptureTexture;
 		id<MTLTexture> dst = CreateTextureCopyIfNeeded();
 
 		id<MTLBlitCommandEncoder> blit = [UnityCurrentMTLCommandBuffer() blitCommandEncoder];
