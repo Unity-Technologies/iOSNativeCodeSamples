@@ -24,17 +24,18 @@ static NSString*    _FetchedText;
 }
 -(void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    NSURL*          url     = [NSURL URLWithString:@"http://unity3d.com/legal/eula"];
+    NSURL*          url     = [NSURL URLWithString:@"http://unity3d.com"];
     NSURLRequest*   request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:10.0];
     NSData*         data    = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
     NSString*       text    = [NSString stringWithUTF8String:(const char*)data.bytes];
 
-    // the page will contain "Last updated: [date]" inside some tag
-    NSRange     updateStartRange    = [text rangeOfString:@">Last updated:"];
-    unsigned    updateStart         = updateStartRange.location + updateStartRange.length + 1;
-    NSRange     updateEndRange      = [text rangeOfString:@"<" options:0 range:NSMakeRange(updateStart, text.length - updateStart)];
+    // i dont think this is appropriate place to fully write all the words i can say about web 2.0 obsession
+    // so we just grab <title> and be gone
+    NSRange     titleStartRange    = [text rangeOfString:@"<title>"];
+    unsigned    titleStart         = titleStartRange.location + titleStartRange.length;
+    NSRange     titleEndRange      = [text rangeOfString:@"<" options:0 range:NSMakeRange(titleStart, text.length - titleStart)];
 
-    _FetchedText = [text substringWithRange:NSMakeRange(updateStart, updateEndRange.location - updateStart)];
+    _FetchedText = [text substringWithRange:NSMakeRange(titleStart, titleEndRange.location - titleStart)];
 
     // do not try to run player loop before unity is inited
     if(_unityAppReady)
