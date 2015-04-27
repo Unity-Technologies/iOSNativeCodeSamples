@@ -42,12 +42,12 @@ In our case Update looks like that:
 
 	void Update()
 	{
-	    if (fetchedText == null)
-	    {
-	        fetchedText = QueryFetchedText();
-	        if (fetchedText != null)
-	            Debug.Log("Just Fetched: " + fetchedText);
-	    }
+		if (fetchedText == null)
+		{
+			fetchedText = QueryFetchedText();
+			if (fetchedText != null)
+				Debug.Log("Just Fetched: " + fetchedText);
+		}
 	}
 
 so you will see it logged immediately (even though app is in background)
