@@ -26,7 +26,7 @@ public class TestMetalPlugin : MonoBehaviour
 	void Start()
 	{
 		RenderTexture rt = GetComponent<Camera>().targetTexture;
-		// make sure rt is created, as OnPostRender will be called before setting it as active RT, and lazy creation would not kick in yet
+		// make sure rt is created, as OnPreRender will be called before setting it as active RT, and lazy creation would not kick in yet
 		if(rt)
 			rt.Create();
 	}
