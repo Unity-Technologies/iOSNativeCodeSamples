@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdint.h>
 
-@interface VideoPlayerScripting : NSObject <VideoPlayerDelegate>
+@interface VideoPlayerScripting : NSObject<VideoPlayerDelegate>
 {
     @public VideoPlayer* player;
     @public BOOL         playerReady;
@@ -24,12 +24,12 @@
 @implementation VideoPlayerScripting
 - (void)playVideo:(NSURL*)url
 {
-    if(!player)
+    if (!player)
     {
         player = [[VideoPlayer alloc] init];
         player.delegate = self;
     }
-    [player loadVideo:url];
+    [player loadVideo: url];
 }
 
 - (void)onPlayerReady
@@ -37,38 +37,39 @@
     playerReady = YES;
 
     [player playToTexture];
-    [player setAudioVolume:1.0f];
+    [player setAudioVolume: 1.0f];
 }
 
 - (void)onPlayerDidFinishPlayingVideo
 {
     playerReady = NO;
 }
+
 @end
 
 static VideoPlayerScripting* _GetPlayer()
 {
     static VideoPlayerScripting* _Player = nil;
-    if(!_Player)
+    if (!_Player)
         _Player = [[VideoPlayerScripting alloc] init];
 
     return _Player;
 }
+
 static NSURL* _GetUrl(const char* filename)
 {
     NSURL* url = nil;
-    if(::strstr(filename, "://"))
-        url = [NSURL URLWithString: [NSString stringWithUTF8String:filename]];
+    if (::strstr(filename, "://"))
+        url = [NSURL URLWithString: [NSString stringWithUTF8String: filename]];
     else
-        url = [NSURL fileURLWithPath: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: [NSString stringWithUTF8String:filename]]];
+        url = [NSURL fileURLWithPath: [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent: [NSString stringWithUTF8String: filename]]];
 
     return url;
 }
 
-
 extern "C" bool VideoPlayer_CanOutputToTexture(const char* filename)
 {
-    return [VideoPlayer CanPlayToTexture:_GetUrl(filename)];
+    return [VideoPlayer CanPlayToTexture: _GetUrl(filename)];
 }
 
 extern "C" bool VideoPlayer_PlayerReady()
@@ -95,5 +96,5 @@ extern "C" intptr_t VideoPlayer_CurFrameTexture()
 
 extern "C" void VideoPlayer_PlayVideo(const char* filename)
 {
-    [_GetPlayer() playVideo:_GetUrl(filename)];
+    [_GetPlayer() playVideo: _GetUrl(filename)];
 }

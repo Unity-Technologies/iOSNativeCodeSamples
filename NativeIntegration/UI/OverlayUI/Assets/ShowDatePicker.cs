@@ -16,8 +16,8 @@ public class ShowDatePicker : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void HideNativeDatePicker();
 #else
-    private static void ShowNativeDatePicker(StringParamDelegate dateSelected)  { }
-    private static void HideNativeDatePicker()                                  { }
+    private static void ShowNativeDatePicker(StringParamDelegate dateSelected)  {}
+    private static void HideNativeDatePicker()                                  {}
 #endif
 
     private static bool _DatePickerShown = false;

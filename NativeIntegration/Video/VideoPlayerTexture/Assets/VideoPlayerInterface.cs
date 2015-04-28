@@ -3,7 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 
 public class
-VideoPlayerInterface
+    VideoPlayerInterface
 {
 #if UNITY_IPHONE && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -22,7 +22,7 @@ VideoPlayerInterface
     private static bool VideoPlayer_CanOutputToTexture(string filename) { return false; }
     private static bool VideoPlayer_PlayerReady()                       { return false; }
     private static float VideoPlayer_DurationSeconds()                  { return 0.0f; }
-    private static void VideoPlayer_VideoExtents(ref int w, ref int h)  { }
+    private static void VideoPlayer_VideoExtents(ref int w, ref int h)  {}
     private static System.IntPtr VideoPlayer_CurFrameTexture()          { return System.IntPtr.Zero; }
     private static bool VideoPlayer_PlayVideo(string filename)          { return false; }
 #endif // if UNITY_IPHONE && !UNITY_EDITOR

@@ -37,7 +37,7 @@
 {
     NSUInteger  supportOrient   = [controller supportedInterfaceOrientations];
     const bool  supportPortrait = (supportOrient & (1 << UIInterfaceOrientationPortrait)) || (supportOrient & (1 << UIInterfaceOrientationPortraitUpsideDown));
-    const bool  supportLandscape= (supportOrient & (1 << UIInterfaceOrientationLandscapeLeft)) || (supportOrient & (1 << UIInterfaceOrientationLandscapeRight));
+    const bool  supportLandscape = (supportOrient & (1 << UIInterfaceOrientationLandscapeLeft)) || (supportOrient & (1 << UIInterfaceOrientationLandscapeRight));
 
     NSAssert(supportLandscape != supportPortrait, @"This sample is not suited for autorotation");
 
@@ -46,7 +46,7 @@
 
     float rootW   = [[UIScreen mainScreen] bounds].size.width;
     float rootH   = [[UIScreen mainScreen] bounds].size.height;
-    if(supportPortrait == rootW > rootH)
+    if (supportPortrait == rootW > rootH)
         std::swap(rootW, rootH);
 
     const float viewW   = supportPortrait ? rootW : rootW * 0.5f;
@@ -62,14 +62,14 @@
     _unityView.frame        = unityRect;
     _screenshotView.frame   = imageRect;
 
-    [_rootView addSubview:_unityViewController.view];
-    [_rootView addSubview:_screenshotViewController.view];
-    [_rootView bringSubviewToFront:_unityView];
+    [_rootView addSubview: _unityViewController.view];
+    [_rootView addSubview: _screenshotViewController.view];
+    [_rootView bringSubviewToFront: _unityView];
 }
 
 - (void)willStartWithViewController:(UIViewController*)controller
 {
-    _rootView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    _rootView = [[UIView alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
 
     _unityViewController = [[UIViewController alloc] init];
     _unityViewController.view = _unityView;
@@ -81,7 +81,7 @@
     _screenshotViewController = [[UIViewController alloc] init];
     _screenshotViewController.view = _screenshotView;
 
-    [self setupViews:controller];
+    [self setupViews: controller];
     controller.view = _rootView;
 }
 
@@ -91,9 +91,9 @@
     [_screenshotViewController.view removeFromSuperview];
     [_rootView removeFromSuperview];
 
-    [super willTransitionToViewController:toController fromViewController:fromController];
-    [self setupViews:toController];
-    [_window addSubview:_rootView];
+    [super willTransitionToViewController: toController fromViewController: fromController];
+    [self setupViews: toController];
+    [_window addSubview: _rootView];
 }
 
 @end
@@ -103,13 +103,13 @@ IMPL_APP_CONTROLLER_SUBCLASS(MyAppController);
 
 extern "C" void OnScreenshotDone(const char* filename)
 {
-    NSURL*  documents   = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject;
-    NSURL*  fileUrl     = [documents URLByAppendingPathComponent:[NSString stringWithUTF8String:filename]];
-    NSData* imgData     = [NSData dataWithContentsOfURL:fileUrl];
+    NSURL*  documents   = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask].lastObject;
+    NSURL*  fileUrl     = [documents URLByAppendingPathComponent: [NSString stringWithUTF8String: filename]];
+    NSData* imgData     = [NSData dataWithContentsOfURL: fileUrl];
 
     MyAppController* app = (MyAppController*)GetAppController();
 
-    app->_screenshotView.image = [UIImage imageWithData:imgData];
+    app->_screenshotView.image = [UIImage imageWithData: imgData];
     app->_screenshotView.hidden = NO;
     [app.rootView layoutSubviews];
 }
@@ -121,5 +121,5 @@ extern "C" int UnityInterfaceOrientation()
 
 extern "C" void UnityChangeInterfaceOrientation(int orient)
 {
-    [GetAppController() orientInterface:ConvertToIosScreenOrientation((ScreenOrientation)orient)];
+    [GetAppController() orientInterface: ConvertToIosScreenOrientation((ScreenOrientation)orient)];
 }

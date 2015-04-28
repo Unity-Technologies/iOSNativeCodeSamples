@@ -18,32 +18,34 @@
 @implementation MyAppController
 - (void)willStartWithViewController:(UIViewController*)controller
 {
-    _rootView       = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    _rootView       = [[UIView alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
 
     _embedController1 = [[UIViewController alloc] init];
     _embedController1.view = _unityView;
     _embedController1.navigationItem.rightBarButtonItem =
-        [[UIBarButtonItem alloc] initWithTitle:@"Right" style:UIBarButtonItemStyleBordered target:self action:@selector(moveRight:)];
+        [[UIBarButtonItem alloc] initWithTitle: @"Right" style: UIBarButtonItemStyleBordered target: self action: @selector(moveRight:)];
 
     _embedController2 = [[UIViewController alloc] init];
     _embedController2.navigationItem.leftBarButtonItem =
-        [[UIBarButtonItem alloc] initWithTitle:@"Left" style:UIBarButtonItemStyleBordered target:self action:@selector(moveLeft:)];
+        [[UIBarButtonItem alloc] initWithTitle: @"Left" style: UIBarButtonItemStyleBordered target: self action: @selector(moveLeft:)];
 
-    _embedController2.view = [[UIWebView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    [(UIWebView*)_embedController2.view loadRequest: [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.unity3d.com"]]];
+    _embedController2.view = [[UIWebView alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
+    [(UIWebView*)_embedController2.view loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: @"http://www.unity3d.com"]]];
 
     _rootController.view = _rootView;
 
-    _navController = [[UINavigationController alloc] initWithRootViewController:_embedController1];
-    [_rootView addSubview:_navController.view];
+    _navController = [[UINavigationController alloc] initWithRootViewController: _embedController1];
+    [_rootView addSubview: _navController.view];
 }
+
 - (void)moveRight:(id)sender
 {
-    [_navController pushViewController:_embedController2 animated:NO];
+    [_navController pushViewController: _embedController2 animated: NO];
 }
+
 - (void)moveLeft:(id)sender
 {
-    [_navController popViewControllerAnimated:NO];
+    [_navController popViewControllerAnimated: NO];
 }
 
 @end

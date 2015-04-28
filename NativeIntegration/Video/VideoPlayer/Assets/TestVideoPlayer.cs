@@ -14,10 +14,10 @@ public class TestVideoPlayer : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void VideoPlayer_RewindVideo();
 #else // if UNITY_IPHONE && !UNITY_EDITOR
-    private static void VideoPlayer_PlayVideo(string url)   { }
-    private static void VideoPlayer_PauseVideo()            { }
-    private static void VideoPlayer_ResumeVideo()           { }
-    private static void VideoPlayer_RewindVideo()           { }
+    private static void VideoPlayer_PlayVideo(string url)   {}
+    private static void VideoPlayer_PauseVideo()            {}
+    private static void VideoPlayer_ResumeVideo()           {}
+    private static void VideoPlayer_RewindVideo()           {}
 #endif // if UNITY_IPHONE && !UNITY_EDITOR
 
     private string[] videoPath = new string[]

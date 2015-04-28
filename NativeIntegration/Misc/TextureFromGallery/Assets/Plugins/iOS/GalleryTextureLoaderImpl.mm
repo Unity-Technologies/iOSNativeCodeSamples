@@ -8,29 +8,30 @@ extern "C" void RequestImages()
 {
     if (collector != nil)
         return;
-    
-    collector = [[NSMutableArray alloc] initWithCapacity:0];
-    
-    NSLog(@"ListGalleryImages\n");
-    
-    if (!al)
-      al = [[ALAssetsLibrary alloc] init];
 
-    [al enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos
-    usingBlock:^(ALAssetsGroup *group, BOOL *stop)
+    collector = [[NSMutableArray alloc] initWithCapacity: 0];
+
+    NSLog(@"ListGalleryImages\n");
+
+    if (!al)
+        al = [[ALAssetsLibrary alloc] init];
+
+    [al enumerateGroupsWithTypes: ALAssetsGroupSavedPhotos
+     usingBlock:^(ALAssetsGroup *group, BOOL *stop)
     {
-             [group enumerateAssetsUsingBlock:^(ALAsset *asset, NSUInteger index, BOOL *stop)
-             {
-                  if (asset) {
-                      [collector addObject:asset];
-                      NSLog(@"Found asset: %@ !\n", [[asset defaultRepresentation] url]);
-                      }
-                  }];
-            
-              done = true;
-             }
-                    failureBlock:^(NSError *error) { done = true; NSLog(@"Image gallery scanning failed: %@!\n", error);}
-         ];
+        [group enumerateAssetsUsingBlock:^(ALAsset *asset, NSUInteger index, BOOL *stop)
+        {
+            if (asset)
+            {
+                [collector addObject: asset];
+                NSLog(@"Found asset: %@ !\n", [[asset defaultRepresentation] url]);
+            }
+        }];
+
+        done = true;
+    }
+     failureBlock:^(NSError *error) { done = true; NSLog(@"Image gallery scanning failed: %@!\n", error); }
+    ];
 }
 
 extern "C" bool GetGalleryLoadingFinished()
@@ -48,26 +49,27 @@ extern "C" void* GetGalleryImage(int idx, int* sz)
 {
     if (collector == nil || idx >= [collector count])
         return NULL;
-    
-    ALAsset* theAsset = [collector objectAtIndex:idx];
-    
-    long long sizeOfRawDataInBytes = [[[collector objectAtIndex:idx] defaultRepresentation] size];
+
+    ALAsset* theAsset = [collector objectAtIndex: idx];
+
+    long long sizeOfRawDataInBytes = [[[collector objectAtIndex: idx] defaultRepresentation] size];
     *sz = (int)sizeOfRawDataInBytes;
-    
-    NSMutableData* rawData = [[NSMutableData alloc]initWithCapacity:sizeOfRawDataInBytes];
+
+    NSMutableData* rawData = [[NSMutableData alloc]initWithCapacity: sizeOfRawDataInBytes];
     uint8_t* bufferPointer = (uint8_t*)[rawData mutableBytes];
-    
-    NSError* error=nil;
-    [[theAsset defaultRepresentation] getBytes:bufferPointer fromOffset:0 length:sizeOfRawDataInBytes error:&error];
-    if (error) {
-        NSLog(@"Getting bytes failed with error: %@\n",error);
+
+    NSError* error = nil;
+    [[theAsset defaultRepresentation] getBytes: bufferPointer fromOffset: 0 length: sizeOfRawDataInBytes error: &error];
+    if (error)
+    {
+        NSLog(@"Getting bytes failed with error: %@\n", error);
         return NULL;
     }
-    
+
     return (__bridge_retained void*)rawData;
 }
 
-extern "C" void* GetImageBuffer(NSMutableData* rawData)
+extern "C" void* GetImageBuffer(NSMutableData * rawData)
 {
     return [rawData mutableBytes];
 }

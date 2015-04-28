@@ -23,7 +23,7 @@ static ScreenshotCreator* _Creator = nil;
 - (id)init
 {
     NSAssert(_Creator == nil, @"You can have only one instance of ScreenshotCreator");
-    if((self = [super init]))
+    if ((self = [super init]))
     {
         self->screenshotPath = nil;
         self->callback = nil;
@@ -45,7 +45,7 @@ static ScreenshotCreator* _Creator = nil;
 
 - (void)onFrameResolved
 {
-    if(self->requestedScreenshot)
+    if (self->requestedScreenshot)
     {
         self->creatingScreenshot = YES;
 
@@ -67,14 +67,14 @@ static ScreenshotCreator* _Creator = nil;
             ::memcpy(imageBuffer, CVPixelBufferGetBaseAddress(pixelBuf), bufferSize);
         }
         CVPixelBufferUnlockBaseAddress(pixelBuf, kCVPixelBufferLock_ReadOnly);
-        [self performSelectorInBackground:@selector(saveImage) withObject:NULL];
+        [self performSelectorInBackground: @selector(saveImage) withObject: NULL];
     }
     self->requestedScreenshot = NO;
 }
 
 - (void)queryScreenshot:(NSString*)path callback:(ScreenshotComplete)callback_
 {
-    if(!self->creatingScreenshot)
+    if (!self->creatingScreenshot)
     {
         self->screenshotPath = path;
         self->callback = callback_;
@@ -89,51 +89,51 @@ static ScreenshotCreator* _Creator = nil;
     // also manual flipping could be avoided if we used pnglib directly (write png rows right away)
     // anyway we strive for min deps here ;-)
 
-    char* finalImageData = (char*)::malloc(4*imageW*imageH);
+    char* finalImageData = (char*)::malloc(4 * imageW * imageH);
     {
         const int srcRowSize = bufferRowLen;
-        const int dstRowSize = 4*imageW;
+        const int dstRowSize = 4 * imageW;
         const int srcRowNext = bufferFlipped ? -srcRowSize : srcRowSize;
 
         char* srcRow = imageBuffer;
         char* dstRow = finalImageData;
 
-        if(bufferFlipped)   srcRow = imageBuffer + (bufferH-1) * srcRowSize;
+        if (bufferFlipped)   srcRow = imageBuffer + (bufferH - 1) * srcRowSize;
         else                srcRow = imageBuffer;
 
-        for(int i = 0 ; i < imageH ; ++i, srcRow += srcRowNext, dstRow += dstRowSize)
+        for (int i = 0; i < imageH; ++i, srcRow += srcRowNext, dstRow += dstRowSize)
         {
-            for(int j = 0 ; j < imageW ; ++j)
+            for (int j = 0; j < imageW; ++j)
             {
-                dstRow[4*j+0] = srcRow[4*j+2];
-                dstRow[4*j+1] = srcRow[4*j+1];
-                dstRow[4*j+2] = srcRow[4*j+0];
-                dstRow[4*j+3] = srcRow[4*j+3];
+                dstRow[4 * j + 0] = srcRow[4 * j + 2];
+                dstRow[4 * j + 1] = srcRow[4 * j + 1];
+                dstRow[4 * j + 2] = srcRow[4 * j + 0];
+                dstRow[4 * j + 3] = srcRow[4 * j + 3];
             }
         }
     }
     ::free(imageBuffer);
 
-    CGDataProviderRef cgProvider = CGDataProviderCreateWithData(0, finalImageData, 4*imageW*imageH, 0);
+    CGDataProviderRef cgProvider = CGDataProviderCreateWithData(0, finalImageData, 4 * imageW * imageH, 0);
     CGColorSpaceRef cgColorSpace = CGColorSpaceCreateDeviceRGB();
     CGImageRef cgImage =
-        CGImageCreate(  imageW, imageH, 8, 32, 4*imageW,
-                        cgColorSpace, kCGBitmapByteOrderDefault, cgProvider, 0, NO, kCGRenderingIntentDefault
-    );
+        CGImageCreate(imageW, imageH, 8, 32, 4 * imageW,
+            cgColorSpace, kCGBitmapByteOrderDefault, cgProvider, 0, NO, kCGRenderingIntentDefault
+            );
     CGDataProviderRelease(cgProvider);
     CGColorSpaceRelease(cgColorSpace);
 
-    UIImage* image = [UIImage imageWithCGImage:cgImage];
+    UIImage* image = [UIImage imageWithCGImage: cgImage];
     CGImageRelease(cgImage);
 
-    NSURL* documents = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject;
-    NSURL* fileUrl   = [documents URLByAppendingPathComponent:screenshotPath];
+    NSURL* documents = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask].lastObject;
+    NSURL* fileUrl   = [documents URLByAppendingPathComponent: screenshotPath];
 
     NSData* pngData = UIImagePNGRepresentation(image);
-    [pngData writeToURL:fileUrl atomically:YES];
+    [pngData writeToURL: fileUrl atomically: YES];
     ::free(finalImageData);
 
-    [self performSelectorOnMainThread: @selector(doneSavingImage) withObject:NULL waitUntilDone:NO];
+    [self performSelectorOnMainThread: @selector(doneSavingImage) withObject: NULL waitUntilDone: NO];
 }
 
 - (void)doneSavingImage
@@ -147,5 +147,5 @@ static ScreenshotCreator* _Creator = nil;
 
 extern "C" void CaptureScreenshot(ScreenshotComplete complete, const char* filename)
 {
-    [_Creator queryScreenshot:[NSString stringWithUTF8String:filename] callback:complete];
+    [_Creator queryScreenshot: [NSString stringWithUTF8String: filename] callback: complete];
 }
