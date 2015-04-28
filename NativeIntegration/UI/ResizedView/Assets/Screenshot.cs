@@ -32,7 +32,6 @@ public class Screenshot : MonoBehaviour
     #endif
     }
 
-
 #if UNITY_IPHONE && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void CaptureScreenshot(ScreenshotCompleteDelegate completed, string filename);

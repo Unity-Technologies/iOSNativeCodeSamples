@@ -16,7 +16,6 @@ public class TestScreenshot : MonoBehaviour
         savingScreenshot = false;
     }
 
-
 #if UNITY_IPHONE && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void CaptureScreenshot(ScreenshotCompleteDelegate completed, string filename);

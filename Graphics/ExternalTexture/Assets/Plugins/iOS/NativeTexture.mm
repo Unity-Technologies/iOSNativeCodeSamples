@@ -9,10 +9,10 @@
 
 static UIImage* LoadImage(const char* filename)
 {
-    NSString* imageName = [NSString stringWithUTF8String:filename];
-    NSString* imagePath = [[NSBundle mainBundle] pathForResource:imageName ofType:@"png"];
+    NSString* imageName = [NSString stringWithUTF8String: filename];
+    NSString* imagePath = [[NSBundle mainBundle] pathForResource: imageName ofType: @"png"];
 
-    return [UIImage imageWithContentsOfFile:imagePath];
+    return [UIImage imageWithContentsOfFile: imagePath];
 }
 
 // you need to free this pointer
@@ -25,12 +25,12 @@ static void* LoadDataFromImage(UIImage* image)
     // for the sake of the sample we enforce 128x128 textures
     assert(imageW == 128 && imageH == 128);
 
-    void* textureData = ::malloc(imageW*imageH * 4);
-    ::memset(textureData, 0x00, imageW*imageH * 4);
+    void* textureData = ::malloc(imageW * imageH * 4);
+    ::memset(textureData, 0x00, imageW * imageH * 4);
 
     CGContextRef textureContext = CGBitmapContextCreate(textureData, imageW, imageH, 8, imageW * 4, CGImageGetColorSpace(imageData), kCGImageAlphaPremultipliedLast);
     CGContextSetBlendMode(textureContext, kCGBlendModeCopy);
-    CGContextDrawImage(textureContext, CGRectMake(0,0, imageW, imageH), imageData);
+    CGContextDrawImage(textureContext, CGRectMake(0, 0, imageW, imageH), imageData);
     CGContextRelease(textureContext);
 
     return textureData;
@@ -55,6 +55,7 @@ static uintptr_t CreateGlesTexture(void* data, unsigned w, unsigned h)
 
     return texture;
 }
+
 static void DestroyGlesTexture(uintptr_t tex)
 {
     GLint curGLTex = 0;
@@ -66,32 +67,30 @@ static void DestroyGlesTexture(uintptr_t tex)
     glBindTexture(GL_TEXTURE_2D, curGLTex);
 }
 
-
 static uintptr_t CreateMetalTexture(void* data, unsigned w, unsigned h)
 {
 #if defined(__IPHONE_8_0) && !TARGET_IPHONE_SIMULATOR
-    Class MTLTextureDescriptorClass = [UnityGetMetalBundle() classNamed:@"MTLTextureDescriptor"];
+    Class MTLTextureDescriptorClass = [UnityGetMetalBundle() classNamed: @"MTLTextureDescriptor"];
 
     MTLTextureDescriptor* texDesc =
-        [MTLTextureDescriptorClass texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:w height:h mipmapped:NO];
+        [MTLTextureDescriptorClass texture2DDescriptorWithPixelFormat: MTLPixelFormatRGBA8Unorm width: w height: h mipmapped: NO];
 
-    id<MTLTexture> tex = [UnityGetMetalDevice() newTextureWithDescriptor:texDesc];
+    id<MTLTexture> tex = [UnityGetMetalDevice() newTextureWithDescriptor: texDesc];
 
-    MTLRegion r = MTLRegionMake3D(0,0,0, w,h,1);
-    [tex replaceRegion:r mipmapLevel:0 withBytes:data bytesPerRow:w*4];
+    MTLRegion r = MTLRegionMake3D(0, 0, 0, w, h, 1);
+    [tex replaceRegion: r mipmapLevel: 0 withBytes: data bytesPerRow: w * 4];
 
     return (uintptr_t)(__bridge_retained void*)tex;
 #else
     return 0;
 #endif
 }
+
 static void DestroyMetalTexture(uintptr_t tex)
 {
-    id<MTLTexture> mtltex = (__bridge_transfer id<MTLTexture>)(void*)tex;
+    id<MTLTexture> mtltex = (__bridge_transfer id<MTLTexture>)(void*) tex;
     mtltex = nil;
 }
-
-
 
 extern "C" intptr_t CreateNativeTexture(const char* filename)
 {
@@ -99,7 +98,7 @@ extern "C" intptr_t CreateNativeTexture(const char* filename)
     void*       textureData = LoadDataFromImage(image);
 
     uintptr_t ret = 0;
-    if(UnitySelectedRenderingAPI() == apiMetal)
+    if (UnitySelectedRenderingAPI() == apiMetal)
         ret = CreateMetalTexture(textureData, image.size.width, image.size.height);
     else
         ret = CreateGlesTexture(textureData, image.size.width, image.size.height);
@@ -110,7 +109,7 @@ extern "C" intptr_t CreateNativeTexture(const char* filename)
 
 extern "C" void DestroyNativeTexture(uintptr_t tex)
 {
-    if(UnitySelectedRenderingAPI() == apiMetal)
+    if (UnitySelectedRenderingAPI() == apiMetal)
         DestroyMetalTexture(tex);
     else
         DestroyGlesTexture(tex);

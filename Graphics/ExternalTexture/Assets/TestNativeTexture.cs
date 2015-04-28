@@ -19,9 +19,11 @@ public class TestNativeTexture : MonoBehaviour
         Texture2D tex = (Texture2D)Resources.LoadAssetAtPath("Assets/Plugins/iOS/" + filename + ".png", typeof(Texture2D));
         return tex.GetNativeTexturePtr();
     }
+
     private static void DestroyNativeTexture(System.IntPtr tex)
     {
     }
+
 #endif // if UNITY_IPHONE && !UNITY_EDITOR
 
     private string[]    externalTexture = new string[] { "Test_UnityLogoLarge", "Test_Icon", "Soft", "WarningSign" };
@@ -37,7 +39,7 @@ public class TestNativeTexture : MonoBehaviour
         curTex      = CreateNativeTexture(externalTexture[curTexIndex]);
 
         testTex.UpdateExternalTexture(curTex);
-        if(texToDestroy != System.IntPtr.Zero)
+        if (texToDestroy != System.IntPtr.Zero)
             DestroyNativeTexture(texToDestroy);
     }
 
@@ -57,7 +59,7 @@ public class TestNativeTexture : MonoBehaviour
 
     void OnGUI()
     {
-        if(GUI.Button(new Rect(10, 10, 200, 200), "Show Next"))
+        if (GUI.Button(new Rect(10, 10, 200, 200), "Show Next"))
             LoadTexture();
     }
 }

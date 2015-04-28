@@ -12,11 +12,12 @@
 
 + (NSString*)getRightTitle
 {
-	return @"Go to right";
+    return @"Go to right";
 }
+
 + (NSString*)getLeftTitle
 {
-	return @"Return left";
+    return @"Return left";
 }
 
 @end

@@ -24,19 +24,19 @@ extern "C" typedef void (*DateSelectedCallback)(const char *);
 
 - (void)showDatePickerView
 {
-    if(_datePicker == nil)
+    if (_datePicker == nil)
     {
-        _datePicker = [[UIDatePicker alloc] initWithFrame:CGRectZero];
+        _datePicker = [[UIDatePicker alloc] initWithFrame: CGRectZero];
         _datePicker.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
         _datePicker.datePickerMode = UIDatePickerModeDate;
         _datePicker.frame = self.rootView.bounds;
         _datePicker.hidden = YES;
 
-        [_datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
+        [_datePicker addTarget: self action: @selector(dateChanged:) forControlEvents: UIControlEventValueChanged];
     }
 
     _datePicker.hidden = NO;
-    [self.rootView addSubview:_datePicker];
+    [self.rootView addSubview: _datePicker];
 }
 
 - (void)hideDatePicker
@@ -53,23 +53,23 @@ extern "C" typedef void (*DateSelectedCallback)(const char *);
 - (void)dateChanged:(id)sender
 {
     NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateStyle:NSDateFormatterMediumStyle];
-    [dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+    [dateFormatter setDateStyle: NSDateFormatterMediumStyle];
+    [dateFormatter setTimeStyle: NSDateFormatterNoStyle];
 
-    _dateSelected([[dateFormatter stringFromDate:_datePicker.date] UTF8String]);
+    _dateSelected([[dateFormatter stringFromDate: _datePicker.date] UTF8String]);
 }
-@end
 
+@end
 
 
 extern "C" void ShowNativeDatePicker(DateSelectedCallback dateSelected)
 {
-    [(MyAppController*)GetAppController() showDatePicker:dateSelected];
+    [(MyAppController*)GetAppController () showDatePicker: dateSelected];
 }
 
 extern "C" void HideNativeDatePicker()
 {
-    [(MyAppController*)GetAppController() hideDatePicker];
+    [(MyAppController*)GetAppController ()hideDatePicker];
 }
 
 IMPL_APP_CONTROLLER_SUBCLASS(MyAppController)
