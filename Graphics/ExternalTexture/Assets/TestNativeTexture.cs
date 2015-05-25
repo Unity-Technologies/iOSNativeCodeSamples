@@ -16,7 +16,7 @@ public class TestNativeTexture : MonoBehaviour
 #else
     private static System.IntPtr CreateNativeTexture(string filename)
     {
-        Texture2D tex = (Texture2D)Resources.LoadAssetAtPath("Assets/Plugins/iOS/" + filename + ".png", typeof(Texture2D));
+        Texture2D tex = (Texture2D)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Plugins/iOS/" + filename + ".png", typeof(Texture2D));
         return tex.GetNativeTexturePtr();
     }
 
@@ -26,7 +26,7 @@ public class TestNativeTexture : MonoBehaviour
 
 #endif // if UNITY_IPHONE && !UNITY_EDITOR
 
-    private string[]    externalTexture = new string[] { "Test_UnityLogoLarge", "Test_Icon", "Soft", "WarningSign" };
+    private string[]    externalTexture = new string[] { "Test_UnityLogoLarge", "Test_Icon", "Soft" };
     private int         curTexIndex;
 
     private System.IntPtr   curTex;
@@ -45,10 +45,6 @@ public class TestNativeTexture : MonoBehaviour
 
     void Start()
     {
-        Material mat = new Material(Shader.Find("Unlit/Transparent"));
-        mat.mainTextureScale = new Vector2(2.0f, 2.0f);
-        target.material = mat;
-
         testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, System.IntPtr.Zero);
         target.material.mainTexture = testTex;
 
