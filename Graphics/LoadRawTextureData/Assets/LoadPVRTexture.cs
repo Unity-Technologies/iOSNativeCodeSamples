@@ -1,6 +1,12 @@
+
+// we added new overload for LoadRawTextureData
+// alas there is no good way to enable code path for 5.x and newer, so you just need to uncomment this define to try out new api
+// #define USE_RAW_TEXTURE_DATA_INTPTR_VARIANT
+
 using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 public class LoadPVRTexture : MonoBehaviour
 {
@@ -27,6 +33,18 @@ public class LoadPVRTexture : MonoBehaviour
         targetMat.mainTexture = targetTex;
     }
 
+    void LoadRawData(Texture2D tex, byte[] texMem)
+    {
+    #if USE_RAW_TEXTURE_DATA_INTPTR_VARIANT
+        // this overload is mostly useful for native plugins, but i am too lazy to go write native code
+        GCHandle pinnedTexMem = GCHandle.Alloc(texMem, GCHandleType.Pinned);
+        targetTex.LoadRawTextureData(pinnedTexMem.AddrOfPinnedObject(), texMem.Length);
+        pinnedTexMem.Free();
+    #else
+        targetTex.LoadRawTextureData(texMem);
+    #endif
+    }
+
     IEnumerator LoadTexture()
     {
     #if UNITY_IPHONE && !UNITY_EDITOR
@@ -48,7 +66,7 @@ public class LoadPVRTexture : MonoBehaviour
         }
 
     #if UNITY_IPHONE && !UNITY_EDITOR
-        targetTex.LoadRawTextureData(texMem);
+        LoadRawData(targetTex, texMem);
         targetTex.Apply(true, true);
     #else
         targetTex.LoadImage(texMem);
