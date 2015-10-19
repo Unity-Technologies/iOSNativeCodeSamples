@@ -33,20 +33,18 @@ public class TestVideoPlayer : MonoBehaviour
         curVideo = (curVideo + 1) % videoPath.Length;
     }
 
-    private int buttonW, buttonH, buttonY;
-
     void Start()
     {
-        buttonW = Screen.width / 8;
-        buttonH = Screen.height / 8;
-        buttonY = Screen.height - buttonH - 10;
-
         PlayVideo();
     }
 
     void OnGUI()
     {
+        int buttonW = Screen.width / 8;
+        int buttonH = Screen.height / 8;
         int buttonX = 10;
+        int buttonY = Screen.height - buttonH - 10;
+
         if (GUI.Button(new Rect(buttonX, buttonY, buttonW, buttonH), "Next"))
             PlayVideo();
 
