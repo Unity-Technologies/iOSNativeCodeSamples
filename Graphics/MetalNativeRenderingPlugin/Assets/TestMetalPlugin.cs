@@ -18,9 +18,12 @@ public class TestMetalPlugin : MonoBehaviour
     private static extern void SetCaptureBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer);
     [DllImport("__Internal")]
     private static extern void SetRenderBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer);
+    [DllImport ("__Internal")]
+    private static extern System.IntPtr GetRenderEventFunc();
 #else
     private static void SetCaptureBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer) {}
     private static void SetRenderBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer)  {}
+    private static System.IntPtr GetRenderEventFunc()                                           { return System.IntPtr.Zero; }
 #endif
 
     void Start()
@@ -45,6 +48,6 @@ public class TestMetalPlugin : MonoBehaviour
 
     void OnPostRender()
     {
-        GL.IssuePluginEvent(pluginBehaviour == PluginBehaviour.Capture ? 0 : 1);
+        GL.IssuePluginEvent(GetRenderEventFunc(), pluginBehaviour == PluginBehaviour.Capture ? 0 : 1);
     }
 }

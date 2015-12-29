@@ -8,14 +8,14 @@ This is a sample of usage of native Low-level Native Plugin Interface. It will s
 
 ##Prerequisites
 
-Unity: 5.1 (4.6/5.0 patch releases)
+Unity: 5.4
 
 iOS: 8.0 (Metal support)
 
 
 ## How does it work
 
-First of all we have 2 cameras: one that will render to RenderTexture and another that renders to screen. 
+First of all we have 2 cameras: one that will render to RenderTexture and another that renders to screen.
 We will use the first one's OnPostRender to copy RenderTexture contents to native-side texture, and the second one's OnPostRender to render on native side (simple rect with captured texture).
 
 Inside OnPreRender we will simply pass target RenderBuffer's to native side. Please note that we enforce RenderTexture creation in Start (otherwise, as RenderTexture's are created lazily we might end up with null buffers in first OnPreRender).
@@ -40,37 +40,44 @@ First of all we do:
 
 	- (void)shouldAttachRenderDelegate;
 	{
-		UnityRegisterRenderingPlugin(&SetGraphicsDeviceFunc, &PluginRenderMarkerFunc);
+		UnityRegisterRenderingPluginV5(&UnityPluginLoad, &UnityPluginUnload);
 	}
 
 
-That is simply registering our SetGraphicsDevice and PluginRenderMarker, as on iOS we cannot use dynamic libraries (hence we cannot load functions from them by name as we usually do on other platforms).
+That is simply registering our UnityPluginLoad and UnityPluginUnload, as on iOS we cannot use dynamic libraries (hence we cannot load functions from them by name as we usually do on other platforms).
 
+Inside UnityPluginLoad we store interface pointers:
+
+	s_UnityInterfaces   = unityInterfaces;
+	s_Graphics          = s_UnityInterfaces->Get<IUnityGraphics>();
+	s_MetalGraphics     = s_UnityInterfaces->Get<IUnityGraphicsMetal>();
+
+Later on we will be using s_MetalGraphics, as it contains pointers to functions unity provides to plugin.
 
 SetCaptureBuffers and SetRenderBuffers are showing the usage of new api: querying MTLTexture from native unity Render Buffer (the one coming from RenderBuffer.GetNativeRenderBufferPtr()):
 
 
 	extern "C" void SetCaptureBuffers(void* colorBuffer, void* depthBuffer)
 	{
-		g_CaptureTexture = UnityRenderBufferMTLTexture((UnityRenderBuffer)colorBuffer);
+		g_CaptureTexture = s_MetalGraphics->TextureFromRenderBuffer((UnityRenderBuffer)colorBuffer);
 	}
 	extern "C" void SetRenderBuffers(void* colorBuffer, void* depthBuffer)
 	{
-		g_RenderColorTexture 	= UnityRenderBufferMTLTexture((UnityRenderBuffer)colorBuffer);
-		g_RenderDepthTexture 	= UnityRenderBufferMTLTexture((UnityRenderBuffer)depthBuffer);
-		g_RenderStencilTexture	= UnityRenderBufferStencilMTLTexture((UnityRenderBuffer)depthBuffer);
-}
+		g_RenderColorTexture    = s_MetalGraphics->TextureFromRenderBuffer((UnityRenderBuffer)colorBuffer);
+		g_RenderDepthTexture    = s_MetalGraphics->TextureFromRenderBuffer((UnityRenderBuffer)depthBuffer);
+		g_RenderStencilTexture  = s_MetalGraphics->StencilTextureFromRenderBuffer((UnityRenderBuffer)depthBuffer);
+	}
 
 
 As we won't go there into using Metal api, there are only two places of interest left.
 First of all on doing "capture" we need to end current unity's encoder (to be able to do our own), so we call
 
-	UnityEndCurrentMTLCommandEncoder();
+	s_MetalGraphics->EndCurrentCommandEncoder();
 
-That will make sure that current unity's rendering (up to this point) is ended cleanly. Please not that if you do your custom comand ecnoder you absolutely *must* end it before returning control to unity 
+That will make sure that current unity's rendering (up to this point) is ended cleanly. Please not that if you do your custom MTLCommandEncoder you absolutely *must* end it before returning control to unity
 
 On doing "render" we simply want to use current unity's encoder to render alongside unity so we do
 
 
-	id<MTLRenderCommandEncoder> cmd = (id<MTLRenderCommandEncoder>)UnityCurrentMTLCommandEncoder();
+	id<MTLRenderCommandEncoder> cmd = (id<MTLRenderCommandEncoder>)s_MetalGraphics->CurrentCommandEncoder();
 
