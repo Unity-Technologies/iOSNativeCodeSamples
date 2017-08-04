@@ -15,13 +15,10 @@ public class TestMetalPlugin : MonoBehaviour
 
 #if UNITY_IPHONE && !UNITY_EDITOR
     [DllImport("__Internal")]
-    private static extern void SetCaptureBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer);
-    [DllImport("__Internal")]
     private static extern void SetRenderBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer);
     [DllImport ("__Internal")]
     private static extern System.IntPtr GetRenderEventFunc();
 #else
-    private static void SetCaptureBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer) {}
     private static void SetRenderBuffers(System.IntPtr colorBuffer, System.IntPtr depthBuffer)  {}
     private static System.IntPtr GetRenderEventFunc()                                           { return System.IntPtr.Zero; }
 #endif
@@ -40,14 +37,12 @@ public class TestMetalPlugin : MonoBehaviour
 
         RenderBuffer colorBuffer = rt ? rt.colorBuffer : Display.main.colorBuffer;
         RenderBuffer depthBuffer = rt ? rt.depthBuffer : Display.main.depthBuffer;
-        if (pluginBehaviour == PluginBehaviour.Capture)
-            SetCaptureBuffers(colorBuffer.GetNativeRenderBufferPtr(), depthBuffer.GetNativeRenderBufferPtr());
-        else
+        if (pluginBehaviour == PluginBehaviour.Render)
             SetRenderBuffers(colorBuffer.GetNativeRenderBufferPtr(), depthBuffer.GetNativeRenderBufferPtr());
     }
 
     void OnPostRender()
     {
-        GL.IssuePluginEvent(GetRenderEventFunc(), pluginBehaviour == PluginBehaviour.Capture ? 0 : 1);
+        GL.IssuePluginEvent(GetRenderEventFunc(), pluginBehaviour == PluginBehaviour.Render ? 1 : 0);
     }
 }

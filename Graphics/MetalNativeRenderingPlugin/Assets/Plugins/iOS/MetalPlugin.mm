@@ -31,12 +31,6 @@ static IUnityGraphicsMetal* s_MetalGraphics     = 0;
 IMPL_APP_CONTROLLER_SUBCLASS(MyAppController);
 
 
-static id<MTLTexture> g_CaptureTexture = nil;
-extern "C" void SetCaptureBuffers(void* colorBuffer, void* depthBuffer)
-{
-    g_CaptureTexture = s_MetalGraphics->TextureFromRenderBuffer((UnityRenderBuffer)colorBuffer);
-}
-
 static id<MTLTexture> g_RenderColorTexture      = nil;
 static id<MTLTexture> g_RenderDepthTexture      = nil;
 static id<MTLTexture> g_RenderStencilTexture    = nil;
@@ -48,22 +42,20 @@ extern "C" void SetRenderBuffers(void* colorBuffer, void* depthBuffer)
 }
 
 static id<MTLTexture> g_TextureCopy = nil;
-static id<MTLTexture> CreateTextureCopyIfNeeded()
+static id<MTLTexture> CreateTextureCopyIfNeeded(id<MTLTexture> captureRT)
 {
     bool create = false;
     if (g_TextureCopy == nil)
         create = true;
-    else if (g_TextureCopy.width != g_CaptureTexture.width || g_TextureCopy.height != g_CaptureTexture.height)
+    else if (g_TextureCopy.width != captureRT.width || g_TextureCopy.height != captureRT.height)
         create = true;
 
     if (create)
     {
         MTLTextureDescriptor* txDesc =
             [[s_MetalGraphics->MetalBundle() classNamed: @"MTLTextureDescriptor"]
-                texture2DDescriptorWithPixelFormat: g_CaptureTexture.pixelFormat
-                width: g_CaptureTexture.width
-                height: g_CaptureTexture.height
-                mipmapped: NO
+                texture2DDescriptorWithPixelFormat: captureRT.pixelFormat
+                width: captureRT.width height: captureRT.height mipmapped: NO
             ];
         g_TextureCopy = [s_MetalGraphics->MetalDevice() newTextureWithDescriptor: txDesc];
     }
@@ -186,11 +178,11 @@ static void UNITY_INTERFACE_API OnRenderEvent(int eventID)
     if(eventID == 0)
     {
         // capture RT
-
+        id<MTLTexture> captureRT = s_MetalGraphics->CurrentRenderPassDescriptor().colorAttachments[0].texture;
         s_MetalGraphics->EndCurrentCommandEncoder();
 
-        id<MTLTexture> src = g_CaptureTexture;
-        id<MTLTexture> dst = CreateTextureCopyIfNeeded();
+        id<MTLTexture> src = captureRT;
+        id<MTLTexture> dst = CreateTextureCopyIfNeeded(captureRT);
 
         id<MTLBlitCommandEncoder> blit = [s_MetalGraphics->CurrentCommandBuffer() blitCommandEncoder];
         [blit copyFromTexture:src sourceSlice:0 sourceLevel:0
