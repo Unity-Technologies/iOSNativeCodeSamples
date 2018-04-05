@@ -10,7 +10,11 @@
 
 static IUnityInterfaces*    g_UnityInterfaces   = 0;
 static IUnityGraphics*      g_Graphics          = 0;
-static IUnityGraphicsMetal* g_MetalGraphics     = 0;
+
+// NB finally in 2017.4 we switched to versioned metal plugin interface
+// NB old unversioned interface will be still provided for some time for backwards compatibility
+static IUnityGraphicsMetalV1* g_MetalGraphics = 0;
+
 
 // plugin assets
 
@@ -239,7 +243,7 @@ UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFun
 void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces) {
     g_UnityInterfaces = unityInterfaces;
     g_Graphics = UNITY_GET_INTERFACE(g_UnityInterfaces, IUnityGraphics);
-    g_MetalGraphics = UNITY_GET_INTERFACE(g_UnityInterfaces, IUnityGraphicsMetal);
+    g_MetalGraphics = UNITY_GET_INTERFACE(g_UnityInterfaces, IUnityGraphicsMetalV1);
 
     // we get plugin load after initial graphics init, so do callback manually
     g_Graphics->RegisterDeviceEventCallback(OnGraphicsDeviceEvent);
