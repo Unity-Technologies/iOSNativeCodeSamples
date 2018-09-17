@@ -21,7 +21,7 @@ Please note that you specify entry points for vertex program and fragment shader
 
 To connect your shaders with Unity you need to mark vertex inputs, uniforms and textures. Please note that for uniforms only one (shared between vertex program and fragment shaders) uniform buffer is supported.
 
-Use `METAL_VERTEX_INPUT` to mark vertex data. Arguments are: 0 for position, 1 - normal, 2 - color, 3-6 - uvs, 7 - tangent.
+Use `METAL_VERTEX_INPUT` to mark vertex data. Arguments are: 0 for position, 1 - normal, 2 - tangent, 3 - color, 4-7 - uvs
 
 	struct InputVP
 	{

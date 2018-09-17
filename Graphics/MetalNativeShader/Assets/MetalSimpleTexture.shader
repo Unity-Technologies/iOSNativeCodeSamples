@@ -39,7 +39,7 @@
 			struct InputVP
 			{
 				float4 pos METAL_VERTEX_INPUT(0);
-				float2 uv  METAL_VERTEX_INPUT(3);
+				float2 uv  METAL_VERTEX_INPUT(4);
 			};
 			struct OutputVP
 			{
