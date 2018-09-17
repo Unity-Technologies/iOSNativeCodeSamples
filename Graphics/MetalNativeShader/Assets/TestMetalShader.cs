@@ -6,6 +6,10 @@ public class TestMetalShader : MonoBehaviour
 {
 	public Shader shader;
 
+	private Material mat;
+	private Texture  tex;
+	private ComputeBuffer buf;
+
 	private Texture2D CreateTexture(int ext)
 	{
 		Texture2D tex = new Texture2D(ext,ext,TextureFormat.RGBA32, false,false);
@@ -21,6 +25,7 @@ public class TestMetalShader : MonoBehaviour
 			}
 		}
 		tex.SetPixels(pixels);
+		tex.wrapMode = TextureWrapMode.Clamp;
 		tex.Apply(false, false);
 
 		return tex;
@@ -28,9 +33,23 @@ public class TestMetalShader : MonoBehaviour
 
 	void Start()
 	{
-		Material mat = new Material(shader);
-		mat.mainTexture = CreateTexture(64);
-		mat.color = new Color(1,0,0,1);
+		buf = new ComputeBuffer(1, 4*sizeof(float));
+		buf.SetData(new float[]{0.0f,1.0f,0.0f,1.0f});
+
+		tex = CreateTexture(32);
+
+		mat = new Material(shader);
+		mat.mainTexture = tex;
+		mat.SetBuffer("_ColorBuffer", buf);
+		mat.color = new Color(1,1,0,1);
+
 		GetComponent<Renderer>().material = mat;
+	}
+
+	void OnDisable()
+	{
+		DestroyImmediate(mat);
+		buf.Release();
+		DestroyImmediate(tex);
 	}
 }

@@ -8,7 +8,7 @@ This is a sample of using Metal Shading Language in Unity Shaders.
 
 ##Prerequisites
 
-Unity: 2017
+Unity: 2019
 
 
 ## How does it work
@@ -29,9 +29,13 @@ Use `METAL_VERTEX_INPUT` to mark vertex data. Arguments are: 0 for position, 1 -
 		float2 uv  METAL_VERTEX_INPUT(3);
 	};
 
-Use `METAL_TEX_INPUT` to mark used textures. Arguments are: first is metal type to use, second bind point and third texture property name.
+Use `METAL_TEX_INPUT` to mark used textures. Arguments are: first is metal type to use, second is the bind point and third is the property name.
 
-	fragment OutputFS frag(<...>, METAL_TEX_INPUT(texture2d<half, access::sample>, 0, _MainTex))
+	METAL_TEX_INPUT(texture2d<half, access::sample>, 0, _MainTex)
+
+Use `METAL_BUFFER_INPUT` to mark used buffers. HLSL analogue is StructuredBuffer<T>, but unlike HLSL you need to pass element count yourself. Arguments are: first is the type of element, second is the bind point and third is the property name.
+
+	METAL_BUFFER_INPUT(ColorInput, 1, _ColorBuffer)
 
 Use `METAL_CONST_MATRIX` and `METAL_CONST_VECTOR` to mark uniform declarations. Arguments are: `METAL_CONST_VECTOR(type, dim, name)` and `METAL_CONST_MATRIX(type, rows, cols, name)`
 

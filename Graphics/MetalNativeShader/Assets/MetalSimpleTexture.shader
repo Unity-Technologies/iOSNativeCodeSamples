@@ -31,6 +31,11 @@
 				METAL_CONST_VECTOR(half, 4, _Color);
 			};
 
+			struct ColorInput
+			{
+				float4 color;
+			};
+
 			struct InputVP
 			{
 				float4 pos METAL_VERTEX_INPUT(0);
@@ -53,10 +58,12 @@
 				output.uv = input.uv;
 				return output;
 			}
-			fragment OutputFS frag(constant Globals& glob [[ buffer(0) ]], OutputVP input [[ stage_in ]], METAL_TEX_INPUT(texture2d<half, access::sample>, 0, _MainTex))
+			fragment OutputFS frag(constant Globals& glob [[ buffer(0) ]], METAL_BUFFER_INPUT(ColorInput, 1, _ColorBuffer),
+				METAL_TEX_INPUT(texture2d<half, access::sample>, 0, _MainTex),
+				OutputVP input [[ stage_in ]])
 			{
 				OutputFS output;
-				output.color.rgb = glob._Color.rgb * _MainTex.sample(sampler__MainTex, input.uv).xyz;
+				output.color.rgb = glob._Color.rgb * (half3)_ColorBuffer[0].color.xyz * _MainTex.sample(sampler__MainTex, input.uv).xyz;
 				output.color.a = 1;
 				return output;
 			}
