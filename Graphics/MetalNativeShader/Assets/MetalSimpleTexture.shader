@@ -62,6 +62,8 @@
 				METAL_TEX_INPUT(texture2d<half, access::sample>, 0, _MainTex),
 				OutputVP input [[ stage_in ]])
 			{
+				METAL_BUFFER_INPUT_DATA(ColorInput, _ColorBuffer)
+
 				OutputFS output;
 				output.color.rgb = glob._Color.rgb * (half3)_ColorBuffer[0].color.xyz * _MainTex.sample(sampler__MainTex, input.uv).xyz;
 				output.color.a = 1;

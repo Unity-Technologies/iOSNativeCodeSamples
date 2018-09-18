@@ -37,6 +37,11 @@ Use `METAL_BUFFER_INPUT` to mark used buffers. HLSL analogue is StructuredBuffer
 
 	METAL_BUFFER_INPUT(ColorInput, 1, _ColorBuffer)
 
+As metal do not have implicit UAV counters, unity is forced to allocate extra space in all Compute Buffers, so you also need `METAL_BUFFER_INPUT_DATA` to extract data pointer. Arguments are: first is the type of element, second is the property name.
+
+	METAL_BUFFER_INPUT_DATA(ColorInput, _ColorBuffer)
+
+
 Use `METAL_CONST_MATRIX` and `METAL_CONST_VECTOR` to mark uniform declarations. Arguments are: `METAL_CONST_VECTOR(type, dim, name)` and `METAL_CONST_MATRIX(type, rows, cols, name)`
 
 	struct Globals
