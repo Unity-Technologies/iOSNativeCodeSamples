@@ -1,7 +1,4 @@
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
 #import <UIKit/UIKit.h>
-
 #include "UnityMetalSupport.h"
 
 #include <stdlib.h>
@@ -36,40 +33,9 @@ static void* LoadDataFromImage(UIImage* image)
     return textureData;
 }
 
-static uintptr_t CreateGlesTexture(void* data, unsigned w, unsigned h)
-{
-    GLuint texture = 0;
-    glGenTextures(1, &texture);
-
-    GLint curGLTex = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &curGLTex);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    glBindTexture(GL_TEXTURE_2D, curGLTex);
-
-    return texture;
-}
-
-static void DestroyGlesTexture(uintptr_t tex)
-{
-    GLint curGLTex = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &curGLTex);
-
-    GLuint glTex = tex;
-    glDeleteTextures(1, &glTex);
-
-    glBindTexture(GL_TEXTURE_2D, curGLTex);
-}
-
 static uintptr_t CreateMetalTexture(void* data, unsigned w, unsigned h)
 {
-#if defined(__IPHONE_8_0) && !TARGET_IPHONE_SIMULATOR
+#if UNITY_CAN_USE_METAL
     Class MTLTextureDescriptorClass = [UnityGetMetalBundle() classNamed: @"MTLTextureDescriptor"];
 
     MTLTextureDescriptor* texDesc =
@@ -88,8 +54,10 @@ static uintptr_t CreateMetalTexture(void* data, unsigned w, unsigned h)
 
 static void DestroyMetalTexture(uintptr_t tex)
 {
+#if UNITY_CAN_USE_METAL
     id<MTLTexture> mtltex = (__bridge_transfer id<MTLTexture>)(void*) tex;
     mtltex = nil;
+#endif
 }
 
 extern "C" intptr_t CreateNativeTexture(const char* filename)
@@ -100,8 +68,6 @@ extern "C" intptr_t CreateNativeTexture(const char* filename)
     uintptr_t ret = 0;
     if (UnitySelectedRenderingAPI() == apiMetal)
         ret = CreateMetalTexture(textureData, image.size.width, image.size.height);
-    else
-        ret = CreateGlesTexture(textureData, image.size.width, image.size.height);
 
     ::free(textureData);
     return ret;
@@ -111,6 +77,4 @@ extern "C" void DestroyNativeTexture(uintptr_t tex)
 {
     if (UnitySelectedRenderingAPI() == apiMetal)
         DestroyMetalTexture(tex);
-    else
-        DestroyGlesTexture(tex);
 }

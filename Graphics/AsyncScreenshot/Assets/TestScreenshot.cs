@@ -29,7 +29,7 @@ public class TestScreenshot : MonoBehaviour
             savingScreenshot = true;
             CaptureScreenshot(ScreenshotCompleteCallback, "test.png");
 #else
-            Application.CaptureScreenshot("test.png");
+            ScreenCapture.CaptureScreenshot("test.png");
 #endif
         }
     }

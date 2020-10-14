@@ -38,16 +38,22 @@ public class TestNativeTexture : MonoBehaviour
         curTexIndex = (curTexIndex + 1) % externalTexture.Length;
         curTex      = CreateNativeTexture(externalTexture[curTexIndex]);
 
-        testTex.UpdateExternalTexture(curTex);
+        if(testTex == null)
+        {
+            testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, curTex);
+            target.material.mainTexture = testTex;
+        }
+        else
+        {
+            testTex.UpdateExternalTexture(curTex);
+        }
+
         if (texToDestroy != System.IntPtr.Zero)
             DestroyNativeTexture(texToDestroy);
     }
 
     void Start()
     {
-        testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, System.IntPtr.Zero);
-        target.material.mainTexture = testTex;
-
         curTexIndex = -1;
         curTex = System.IntPtr.Zero;
         LoadTexture();
