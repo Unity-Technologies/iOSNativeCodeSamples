@@ -26,14 +26,14 @@ public class MyBuildPostprocessor
     [PostProcessBuild]
     public static void OnPostprocessBuild(BuildTarget buildTarget, string path)
     {
-        if (buildTarget == BuildTarget.iPhone)
+        if (buildTarget == BuildTarget.iOS)
         {
             string projPath = path + "/Unity-iPhone.xcodeproj/project.pbxproj";
 
             PBXProject proj = new PBXProject();
             proj.ReadFromString(File.ReadAllText(projPath));
 
-            string target = proj.TargetGuidByName("Unity-iPhone");
+            string target = proj.GetUnityFrameworkTargetGuid();
 
             // Add user packages to project. Most other source or resource files and packages
             // can be added the same way.
