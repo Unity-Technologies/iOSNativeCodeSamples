@@ -1,6 +1,6 @@
 #import "ScreenshotCreator.h"
 
-#include "GlesHelper.h"
+#include "UnityMetalSupport.h"
 #include "DisplayManager.h"
 
 static ScreenshotCreator* _Creator = nil;
@@ -56,7 +56,8 @@ static ScreenshotCreator* _Creator = nil;
         bufferW         = CVPixelBufferGetWidth(pixelBuf);
         bufferH         = CVPixelBufferGetHeight(pixelBuf);
         bufferRowLen    = CVPixelBufferGetBytesPerRow(pixelBuf);
-        bufferFlipped   = CVOpenGLESTextureIsFlipped((CVOpenGLESTextureRef)mainDisplaySurface->cvTextureCacheTexture);
+        // note that for metal rows ordering is opposite to gl
+        bufferFlipped   = !CVMetalTextureIsFlipped((CVMetalTextureRef)mainDisplaySurface->cvTextureCacheTexture);
 
         imageW  = mainDisplaySurface->targetW;
         imageH  = mainDisplaySurface->targetH;
@@ -98,7 +99,7 @@ static ScreenshotCreator* _Creator = nil;
         char* srcRow = imageBuffer;
         char* dstRow = finalImageData;
 
-        if (bufferFlipped)   srcRow = imageBuffer + (bufferH - 1) * srcRowSize;
+        if (bufferFlipped)  srcRow = imageBuffer + (bufferH - 1) * srcRowSize;
         else                srcRow = imageBuffer;
 
         for (int i = 0; i < imageH; ++i, srcRow += srcRowNext, dstRow += dstRowSize)
@@ -119,7 +120,7 @@ static ScreenshotCreator* _Creator = nil;
     CGImageRef cgImage =
         CGImageCreate(imageW, imageH, 8, 32, 4 * imageW,
             cgColorSpace, kCGBitmapByteOrderDefault, cgProvider, 0, NO, kCGRenderingIntentDefault
-            );
+        );
     CGDataProviderRelease(cgProvider);
     CGColorSpaceRelease(cgColorSpace);
 

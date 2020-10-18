@@ -8,7 +8,7 @@ This is a sample of usage of native **RenderPluginDelegate**. It will make scree
 
 ##Prerequisites
 
-Unity: 4.3
+Unity: 2020
 
 iOS: any
 

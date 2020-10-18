@@ -1,6 +1,6 @@
 #import "ScreenshotCreator.h"
 
-#include "GlesHelper.h"
+#include "UnityMetalSupport.h"
 #include "DisplayManager.h"
 
 static ScreenshotCreator* _Creator = nil;
@@ -56,7 +56,8 @@ static ScreenshotCreator* _Creator = nil;
         bufferW         = CVPixelBufferGetWidth(pixelBuf);
         bufferH         = CVPixelBufferGetHeight(pixelBuf);
         bufferRowLen    = CVPixelBufferGetBytesPerRow(pixelBuf);
-        bufferFlipped   = CVOpenGLESTextureIsFlipped((CVOpenGLESTextureRef)mainDisplaySurface->cvTextureCacheTexture);
+        // note that for metal rows ordering is opposite to gl
+        bufferFlipped   = !CVMetalTextureIsFlipped((CVMetalTextureRef)mainDisplaySurface->cvTextureCacheTexture);
 
         imageW  = mainDisplaySurface->targetW;
         imageH  = mainDisplaySurface->targetH;

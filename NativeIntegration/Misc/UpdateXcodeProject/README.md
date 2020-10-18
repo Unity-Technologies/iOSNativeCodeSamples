@@ -3,12 +3,12 @@
 
 ## Description
 
-This sample shows how to modify generated Xcode projects in order to support 
+This sample shows how to modify generated Xcode projects in order to support
 various types of native plugins.
 
 ##Prerequisites
 
-Unity: 4.5
+Unity: 2020
 
 iOS: any
 

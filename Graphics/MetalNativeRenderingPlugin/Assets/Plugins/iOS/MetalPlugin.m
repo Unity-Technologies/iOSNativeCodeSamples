@@ -90,14 +90,17 @@ static void CreatePluginAssets() {
 
 // to simplify our lives: we will use similar setup for both "color rect" and "texture" draw calls
 // the only reason we cannot pre-alloc them is that we want to handle changing RT transparently
-static id<MTLRenderPipelineState> CreateCommonRenderPipeline(id<MTLFunction> fs, MTLPixelFormat format, int sampleCount) {
+static id<MTLRenderPipelineState> CreateCommonRenderPipeline(id<MTLFunction> fs, MTLPixelFormat colorFormat, MTLPixelFormat depthFormat, MTLPixelFormat stencilFormat, int sampleCount) {
     id<MTLDevice> device = g_MetalGraphics->MetalDevice(); NSBundle* mtlBundle = g_MetalGraphics->MetalBundle();
 
     MTLRenderPipelineDescriptor* pipeDesc = [[mtlBundle classNamed:@"MTLRenderPipelineDescriptor"] new];
 
     MTLRenderPipelineColorAttachmentDescriptor* colorDesc = [[mtlBundle classNamed:@"MTLRenderPipelineColorAttachmentDescriptor"] new];
-    colorDesc.pixelFormat = format;
+    colorDesc.pixelFormat = colorFormat;
     pipeDesc.colorAttachments[0] = colorDesc;
+
+    pipeDesc.depthAttachmentPixelFormat = depthFormat;
+    pipeDesc.stencilAttachmentPixelFormat = stencilFormat;
 
     pipeDesc.fragmentFunction = fs;
     pipeDesc.vertexFunction = g_VProg;
@@ -115,12 +118,18 @@ static id<MTLRenderPipelineState> g_ExtraDrawCallPipe = nil;
 
 static void DoExtraDrawCall() {
     // get current render pass setup
-    id<MTLTexture> rt = g_MetalGraphics->CurrentRenderPassDescriptor().colorAttachments[0].texture;
+    MTLRenderPassDescriptor* curDesc = g_MetalGraphics->CurrentRenderPassDescriptor();
 
-    if(rt.pixelFormat != g_ExtraDrawCallPixelFormat || rt.sampleCount != g_ExtraDrawCallSampleCount) {
+    id<MTLTexture> rtColor   = curDesc.colorAttachments[0].texture;
+    id<MTLTexture> rtDepth   = curDesc.depthAttachment.texture;
+    id<MTLTexture> rtStencil = curDesc.stencilAttachment.texture;
+
+    if(rtColor.pixelFormat != g_ExtraDrawCallPixelFormat || rtColor.sampleCount != g_ExtraDrawCallSampleCount) {
         // RT format changed - recreate render pipeline
-        g_ExtraDrawCallPixelFormat = rt.pixelFormat, g_ExtraDrawCallSampleCount = (int)rt.sampleCount;
-        g_ExtraDrawCallPipe = CreateCommonRenderPipeline(g_FShaderColor, g_ExtraDrawCallPixelFormat, g_ExtraDrawCallSampleCount);
+        // we silently assume that depth/stencil format does not change
+        // even though we dont need it we need to set it up as otherwise validation will whine
+        g_ExtraDrawCallPixelFormat = rtColor.pixelFormat, g_ExtraDrawCallSampleCount = (int)rtColor.sampleCount;
+        g_ExtraDrawCallPipe = CreateCommonRenderPipeline(g_FShaderColor, g_ExtraDrawCallPixelFormat, rtDepth.pixelFormat, rtStencil.pixelFormat, g_ExtraDrawCallSampleCount);
     }
 
     // get current command encoder, update render setup and do extra draw call
@@ -193,7 +202,7 @@ static void DoCaptureRT() {
     if(dst.pixelFormat != g_RTCopyPixelFormat || dst.sampleCount != g_RTCopySampleCount) {
         // RT format changed - recreate render pipeline
         g_RTCopyPixelFormat = dst.pixelFormat, g_RTCopySampleCount = (int)dst.sampleCount;
-        g_RTCopyPipe = CreateCommonRenderPipeline(g_FShaderTexture, g_RTCopyPixelFormat, g_RTCopySampleCount);
+        g_RTCopyPipe = CreateCommonRenderPipeline(g_FShaderTexture, g_RTCopyPixelFormat, MTLPixelFormatInvalid, MTLPixelFormatInvalid, g_RTCopySampleCount);
     }
 
     // render

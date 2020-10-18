@@ -8,7 +8,7 @@ This sample shows how to tweak WWW connection to better suit your needs.
 
 ##Prerequisites
 
-Unity: 4.3.1
+Unity: 4.3.1 - 2019.1
 
 iOS: any
 

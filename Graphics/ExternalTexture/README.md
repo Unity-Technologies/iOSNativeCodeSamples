@@ -8,7 +8,7 @@ This is a sample of usage of **Texture2D.CreateExternalTexture** and **Texture2D
 
 ##Prerequisites
 
-Unity: 4.2
+Unity: 2020
 
 iOS: any
 
