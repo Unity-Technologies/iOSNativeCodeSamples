@@ -30,7 +30,7 @@
         [[UIBarButtonItem alloc] initWithTitle: @"Left" style: UIBarButtonItemStyleBordered target: self action: @selector(moveLeft:)];
 
     _embedController2.view = [[UIWebView alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
-    [(UIWebView*)_embedController2.view loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: @"http://www.unity3d.com"]]];
+    [(UIWebView*)_embedController2.view loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString: @"https://unity.com"]]];
 
     _rootController.view = _rootView;
 

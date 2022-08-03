@@ -8,21 +8,12 @@ This sample shows how to add support for background executions (in this case - f
 
 ##Prerequisites
 
-Unity: 5.1
+Unity: 2022
 
-iOS: any
+iOS: iOS 13+
 
 
 #Caveats
-
-After generating xcode project you should manually tweak info.plist:
-if you prefer tweaking it with xcode - add key "Required background modes" and one value "App downloads content from the network"
-if you want to manually edit info.plist, add:
-
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-	</array>
 
 Background fetch happens at "random" intervals (it is up to iOS to call you), so for debugging you want to use Debug -> Simulate Simulate Background Fetch
 
@@ -46,8 +37,14 @@ In our case Update looks like that:
 		{
 			fetchedText = QueryFetchedText();
 			if (fetchedText != null)
+			if (fetchedText != null)
+			{
 				Debug.Log("Just Fetched: " + fetchedText);
+				text.text = fetchedText;
+			}
 		}
 	}
 
 so you will see it logged immediately (even though app is in background)
+
+Note that we have enabled "Enable Custom Background Behaviors" and "Background fetch" in Player Settings.

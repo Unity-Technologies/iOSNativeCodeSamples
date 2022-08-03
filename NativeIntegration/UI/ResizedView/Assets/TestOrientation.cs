@@ -19,7 +19,7 @@ public class TestOrientation : MonoBehaviour
         ScreenOrientation   orientation = (ScreenOrientation)UnityInterfaceOrientation();
         bool                isPortrait  = orientation == ScreenOrientation.Portrait || orientation == ScreenOrientation.PortraitUpsideDown;
 
-        UnityChangeInterfaceOrientation((int)(isPortrait ? ScreenOrientation.Landscape : ScreenOrientation.Portrait));
+        UnityChangeInterfaceOrientation((int)(isPortrait ? ScreenOrientation.LandscapeLeft : ScreenOrientation.Portrait));
 #endif
     }
 

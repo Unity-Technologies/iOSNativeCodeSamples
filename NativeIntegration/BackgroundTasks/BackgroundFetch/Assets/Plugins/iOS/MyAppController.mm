@@ -25,7 +25,7 @@ static NSString*    _FetchedText;
 
 - (void)application:(UIApplication*)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    NSURL*          url     = [NSURL URLWithString: @"http://unity3d.com"];
+    NSURL*          url     = [NSURL URLWithString: @"https://unity.com"];
     NSURLRequest*   request = [NSURLRequest requestWithURL: url cachePolicy: NSURLRequestReloadIgnoringLocalCacheData timeoutInterval: 10.0];
     NSData*         data    = [NSURLConnection sendSynchronousRequest: request returningResponse: nil error: nil];
     NSString*       text    = [NSString stringWithUTF8String: (const char*)data.bytes];

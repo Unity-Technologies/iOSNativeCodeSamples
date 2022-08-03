@@ -3,43 +3,40 @@
 
 ## Description
 
-This is a sample of usage of **Texture2D.CreateExternalTexture** and **Texture2D.UpdateExternalTexture**. It will load png into gles texture in native plugin and give it back to Unity to be used like normal Unity Texture.
+This is a sample of usage of **Texture2D.CreateExternalTexture** and **Texture2D.UpdateExternalTexture**. It will load png into metal texture in native plugin and give it back to Unity to be used like normal Unity Texture.
 
 
 ##Prerequisites
 
-Unity: 2020
+Unity: 2022
 
-iOS: any
+iOS: iOS 13+
 
 
 ## How does it work
 
-There are two pieces of interest: TestGLESTexture.cs and Plugins/iOS/GlesTexture.mm.
+There are two pieces of interest: TestNativeTexture.cs and Plugins/iOS/NativeTexture.mm.
 
-In Plugins/iOS folder you can see three files: GlesTexture.mm (native plugin) and two images that we will use: Test_UnityLogoLarge.png and Test_Icon.png. All of them will be copied to your project, so we can load png from App Bundle.
+In Plugins/iOS folder you can see three files: NativeTexture.mm (native plugin) and images that we will use. All the will be copied to your project, so we can load png from App Bundle.
 
-GlesTexture.mm contains just one function:
+NativeTexture.mm contains just two functions: one for creating texture and the other one for destroying it. The only interesting place is texture creation
 
 	extern "C" void* GLESTexture_CreateTexture(const char* image_filename, int* w, int* h)
 
-It will load png image from App Bundle to UIImage and pass this data to OpenGL ES:
+It will load png image from App Bundle to UIImage and pass this data to Metal:
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	MTLTextureDescriptor* texDesc =
+	    [MTLTextureDescriptorClass texture2DDescriptorWithPixelFormat: MTLPixelFormatRGBA8Unorm width: w height: h mipmapped: NO];
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageW, imageH, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+	id<MTLTexture> tex = [UnityGetMetalDevice() newTextureWithDescriptor: texDesc];
 
-The returned texture id is later used in TestGLESTexture.cs to create Unity Texture2D from it:
+	MTLRegion r = MTLRegionMake3D(0, 0, 0, w, h, 1);
+	[tex replaceRegion: r mipmapLevel: 0 withBytes: data bytesPerRow: w * 4];
 
-	testTex = Texture2D.CreateExternalTexture(externalTexture[0].w, externalTexture[0].h, TextureFormat.ARGB32, false, false, externalTexture[0].tex);
-	tex.filterMode = FilterMode.Bilinear;
-	tex.wrapMode = TextureWrapMode.Repeat;
+The returned texture id is later used in TestNativeTexture.cs to create Unity Texture2D from it:
 
-Please note, that we made sure that texture settings (wrap mode and filtering) do match.
+	testTex = Texture2D.CreateExternalTexture(128, 128, TextureFormat.ARGB32, false, false, curTex);
+	target.material.mainTexture = testTex;
 
 When you press "Show Next" button it will cycle through loaded textures and reuse Texture object to point to different gles texture.
 Please note, that both textures have exact same setup: same extensions, format etc.

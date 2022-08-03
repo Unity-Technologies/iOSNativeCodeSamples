@@ -23,7 +23,6 @@ public class TestVideoPlayer : MonoBehaviour
     private string[] videoPath = new string[]
     {
         "Data/Raw/big_buck_bunny.mp4",
-        "http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4"
     };
     private int curVideo = 0;
 

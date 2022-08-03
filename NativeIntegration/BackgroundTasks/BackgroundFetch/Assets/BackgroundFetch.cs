@@ -20,13 +20,10 @@ public class BackgroundFetch : MonoBehaviour
         {
             fetchedText = QueryFetchedText();
             if (fetchedText != null)
+            {
                 Debug.Log("Just Fetched: " + fetchedText);
+                text.text = fetchedText;
+            }
         }
-    }
-
-    void OnGUI()
-    {
-        if (fetchedText != null)
-            text.text = fetchedText;
     }
 }

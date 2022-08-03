@@ -69,6 +69,9 @@
 {
     view.hidden = YES;
 }
+- (void)onPlayerError:(NSError*)error
+{
+}
 
 - (void)pause   { [player pause]; }
 - (void)resume  { [player resume]; }

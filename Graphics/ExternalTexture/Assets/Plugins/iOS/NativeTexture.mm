@@ -35,7 +35,6 @@ static void* LoadDataFromImage(UIImage* image)
 
 static uintptr_t CreateMetalTexture(void* data, unsigned w, unsigned h)
 {
-#if UNITY_CAN_USE_METAL
     Class MTLTextureDescriptorClass = [UnityGetMetalBundle() classNamed: @"MTLTextureDescriptor"];
 
     MTLTextureDescriptor* texDesc =
@@ -47,17 +46,12 @@ static uintptr_t CreateMetalTexture(void* data, unsigned w, unsigned h)
     [tex replaceRegion: r mipmapLevel: 0 withBytes: data bytesPerRow: w * 4];
 
     return (uintptr_t)(__bridge_retained void*)tex;
-#else
-    return 0;
-#endif
 }
 
 static void DestroyMetalTexture(uintptr_t tex)
 {
-#if UNITY_CAN_USE_METAL
     id<MTLTexture> mtltex = (__bridge_transfer id<MTLTexture>)(void*) tex;
     mtltex = nil;
-#endif
 }
 
 extern "C" intptr_t CreateNativeTexture(const char* filename)
