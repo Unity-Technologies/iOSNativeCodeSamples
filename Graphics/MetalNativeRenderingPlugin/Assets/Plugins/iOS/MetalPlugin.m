@@ -11,9 +11,7 @@
 static IUnityInterfaces*    g_UnityInterfaces   = 0;
 static IUnityGraphics*      g_Graphics          = 0;
 
-// NB finally in 2017.4 we switched to versioned metal plugin interface
-// NB old unversioned interface will be still provided for some time for backwards compatibility
-static IUnityGraphicsMetalV1* g_MetalGraphics = 0;
+static IUnityGraphicsMetalV2* g_MetalGraphics = 0;
 
 
 // plugin assets
@@ -60,7 +58,7 @@ static void CreatePluginAssets() {
 
     id<MTLLibrary> lib = [device newLibraryWithSource:shaderStr options:nil error:nil];
     g_VProg = [lib newFunctionWithName:@"vprog"];
-    g_FShaderColor = [lib newFunctionWithName:@"fshader_color"], g_FShaderTexture = [lib newFunctionWithName:@"fshader_tex"];
+    g_FShaderColor = [lib newFunctionWithName:@"fshader_color"]; g_FShaderTexture = [lib newFunctionWithName:@"fshader_tex"];
 
     // pos.x pos.y uv.x uv.y
     const float vdata[] = {
@@ -128,7 +126,7 @@ static void DoExtraDrawCall() {
         // RT format changed - recreate render pipeline
         // we silently assume that depth/stencil format does not change
         // even though we dont need it we need to set it up as otherwise validation will whine
-        g_ExtraDrawCallPixelFormat = rtColor.pixelFormat, g_ExtraDrawCallSampleCount = (int)rtColor.sampleCount;
+        g_ExtraDrawCallPixelFormat = rtColor.pixelFormat; g_ExtraDrawCallSampleCount = (int)rtColor.sampleCount;
         g_ExtraDrawCallPipe = CreateCommonRenderPipeline(g_FShaderColor, g_ExtraDrawCallPixelFormat, rtDepth.pixelFormat, rtStencil.pixelFormat, g_ExtraDrawCallSampleCount);
     }
 
@@ -144,7 +142,7 @@ static void DoExtraDrawCall() {
 
 static UnityRenderBuffer g_CopySrcRB = 0, g_CopyDstRB = 0;
 UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API void SetRTCopyTargets(void* src, void* dst) {
-    g_CopySrcRB = src, g_CopyDstRB = dst;
+    g_CopySrcRB = src; g_CopyDstRB = dst;
 }
 
 // we need to take special care about what "texture" do we use
@@ -193,7 +191,7 @@ static void DoCaptureRT() {
     // prepare render pass
     MTLRenderPassColorAttachmentDescriptor* att = [[mtlBundle classNamed: @"MTLRenderPassColorAttachmentDescriptor"] new];
     // NB we assume AA was already resolved, so we dont care
-    att.texture = dst; att.loadAction = MTLLoadActionLoad, att.storeAction = MTLStoreActionStore;
+    att.texture = dst; att.loadAction = MTLLoadActionLoad; att.storeAction = MTLStoreActionStore;
 
     MTLRenderPassDescriptor* desc = [[mtlBundle classNamed: @"MTLRenderPassDescriptor"] new];
     desc.colorAttachments[0] = att;
@@ -201,12 +199,18 @@ static void DoCaptureRT() {
     // prepare render pipeline
     if(dst.pixelFormat != g_RTCopyPixelFormat || dst.sampleCount != g_RTCopySampleCount) {
         // RT format changed - recreate render pipeline
-        g_RTCopyPixelFormat = dst.pixelFormat, g_RTCopySampleCount = (int)dst.sampleCount;
+        g_RTCopyPixelFormat = dst.pixelFormat; g_RTCopySampleCount = (int)dst.sampleCount;
         g_RTCopyPipe = CreateCommonRenderPipeline(g_FShaderTexture, g_RTCopyPixelFormat, MTLPixelFormatInvalid, MTLPixelFormatInvalid, g_RTCopySampleCount);
     }
 
+    // note that this is just an example of how to create your own command buffer, properly commiting unity's one
+    // this is absolutely not needed here, and was added just for the illustration purposes
+    [g_MetalGraphics->CommitCurrentCommandBuffer() waitUntilScheduled];
+    id<MTLCommandBuffer> cb = [g_MetalGraphics->CommandQueue() commandBuffer];
+    cb.label = @"Dummy Test CB";
+
     // render
-    id<MTLRenderCommandEncoder> cmd = [g_MetalGraphics->CurrentCommandBuffer() renderCommandEncoderWithDescriptor:desc];
+    id<MTLRenderCommandEncoder> cmd = [cb renderCommandEncoderWithDescriptor:desc];
     [cmd setRenderPipelineState:g_RTCopyPipe];
     [cmd setCullMode:MTLCullModeNone];
     [cmd setVertexBuffer:g_VB offset:0 atIndex:0];
@@ -214,6 +218,9 @@ static void DoCaptureRT() {
     [cmd drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:6 indexType:MTLIndexTypeUInt16 indexBuffer:g_IB indexBufferOffset:0];
     [cmd endEncoding];
     cmd = nil;
+
+    [cb commit];
+    cb = nil;
 }
 
 
@@ -252,7 +259,7 @@ UnityRenderingEvent UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API GetRenderEventFun
 void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces) {
     g_UnityInterfaces = unityInterfaces;
     g_Graphics = UNITY_GET_INTERFACE(g_UnityInterfaces, IUnityGraphics);
-    g_MetalGraphics = UNITY_GET_INTERFACE(g_UnityInterfaces, IUnityGraphicsMetalV1);
+    g_MetalGraphics = UNITY_GET_INTERFACE(g_UnityInterfaces, IUnityGraphicsMetalV2);
 
     // we get plugin load after initial graphics init, so do callback manually
     g_Graphics->RegisterDeviceEventCallback(OnGraphicsDeviceEvent);
